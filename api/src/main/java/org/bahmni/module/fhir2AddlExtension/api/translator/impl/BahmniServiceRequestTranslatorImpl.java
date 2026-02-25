@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bahmni.module.fhir2AddlExtension.api.BahmniFhirConstants;
+import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.bahmni.module.fhir2AddlExtension.api.service.ServiceRequestLocationReferenceResolver;
 import org.bahmni.module.fhir2AddlExtension.api.translator.OrderTypeTranslator;
 import org.bahmni.module.fhir2AddlExtension.api.translator.ServiceRequestPriorityTranslator;
@@ -14,8 +15,10 @@ import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.Provider;
 import org.openmrs.CareSetting;
+import org.openmrs.User;
 import org.openmrs.api.OrderService;
 import org.openmrs.module.fhir2.api.translators.*;
+import org.openmrs.module.fhir2.model.FhirTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -65,6 +68,12 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 	
 	@Autowired
 	private ServiceRequestLocationReferenceResolver locationReferenceResolver;
+	
+	@Autowired
+	private BahmniFhirTaskDao taskDao;
+	
+	@Autowired
+	private PractitionerReferenceTranslator<User> userPractitionerReferenceTranslator;
 	
 	@Override
 	public ServiceRequest toFhirResource(@Nonnull Order order) {
@@ -117,7 +126,33 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 		if (order.getCommentToFulfiller() != null && !order.getCommentToFulfiller().isEmpty()) {
 			serviceRequest.addNote(new Annotation().setText(order.getCommentToFulfiller()));
 		}
-		
+
+		serviceRequest.setAuthoredOn(order.getDateActivated() != null ? order.getDateActivated() : order.getDateCreated());
+
+		if (order.getFulfillerComment() != null && !order.getFulfillerComment().isEmpty()) {
+			serviceRequest.addNote(new Annotation().setText(order.getFulfillerComment()));
+		}
+
+		if (order.getCreator() != null) {
+			Reference creatorRef = userPractitionerReferenceTranslator.toFhirResource(order.getCreator());
+			if (creatorRef != null) {
+				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_CREATED_BY, creatorRef);
+			}
+		}
+
+		if (order.getChangedBy() != null) {
+			Reference changedByRef = userPractitionerReferenceTranslator.toFhirResource(order.getChangedBy());
+			if (changedByRef != null) {
+				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_UPDATED_BY, changedByRef);
+			}
+			if (order.getDateChanged() != null) {
+				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_UPDATED_ON,
+					new DateTimeType(order.getDateChanged()));
+			}
+		}
+
+		mapTaskFields(serviceRequest, order.getUuid());
+
 		return serviceRequest;
 	}
 	
@@ -174,6 +209,34 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 			reference = new Reference().setReference("ServiceRequest/" + order.getUuid()).setType("ServiceRequest");
 		}
 		return reference;
+	}
+	
+	private void mapTaskFields(ServiceRequest serviceRequest, String orderUuid) {
+		FhirTask task = taskDao.getTaskByOrderUuid(orderUuid);
+		if (task == null) {
+			return;
+		}
+		
+		if (task.getOwnerReference() != null && task.getOwnerReference().getReference() != null) {
+			Reference ownerRef = new Reference();
+			ownerRef.setReference(task.getOwnerReference().getReference());
+			ownerRef.setType(task.getOwnerReference().getType());
+			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER, ownerRef);
+		}
+		
+		if (task.getComment() != null && !task.getComment().trim().isEmpty()) {
+			serviceRequest.addNote(new Annotation().setText(task.getComment()));
+		}
+		
+		if (task.getDateCreated() != null) {
+			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_CREATED_ON,
+			    new DateTimeType(task.getDateCreated()));
+		}
+		
+		if (task.getStatus() != null) {
+			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_STATUS, new StringType(task
+			        .getStatus().name()));
+		}
 	}
 	
 	private Extension determineLabOrderConceptTypeExtension(Order order) {

@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirServiceRequestDao;
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.bahmni.module.fhir2AddlExtension.api.utils.TaskStatusToFulfillerStatusMapper;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
 import org.openmrs.Order;
 import org.openmrs.api.db.DAOException;
 import org.openmrs.module.fhir2.api.dao.impl.FhirTaskDaoImpl;
@@ -39,6 +41,13 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 			updateFulfillerStatusFromTask(savedTask);
 		}
 		return savedTask;
+	}
+	
+	@Override
+	public FhirTask getTaskByOrderUuid(String orderUuid) {
+		Criteria criteria = getSessionFactory().getCurrentSession().createCriteria(FhirTask.class)
+		        .createAlias("basedOnReferences", "bor").add(Restrictions.eq("bor.targetUuid", orderUuid)).setMaxResults(1);
+		return (FhirTask) criteria.uniqueResult();
 	}
 	
 	private void updateFulfillerStatusFromTask(FhirTask fhirTask) {
