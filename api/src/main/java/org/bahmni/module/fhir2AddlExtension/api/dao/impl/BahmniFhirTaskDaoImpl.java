@@ -50,7 +50,7 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 		        .addOrder(org.hibernate.criterion.Order.desc("dateCreated")).setMaxResults(1);
 		return (FhirTask) criteria.uniqueResult();
 	}
-	
+
 	private void updateFulfillerStatusFromTask(FhirTask fhirTask) {
 		String orderUuid = extractOrderUuidFromBasedOn(fhirTask);
 		if (orderUuid == null) {
