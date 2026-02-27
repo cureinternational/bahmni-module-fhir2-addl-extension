@@ -63,4 +63,5 @@ public final class BahmniFhirConstants {
 	public static final String FHIR_EXT_SERVICE_REQUEST_CREATED_BY = EXTENSION_PREFIX + "/service-request/created-by";
 	public static final String FHIR_EXT_SERVICE_REQUEST_UPDATED_BY = EXTENSION_PREFIX + "/service-request/updated-by";
 	public static final String FHIR_EXT_SERVICE_REQUEST_UPDATED_ON = EXTENSION_PREFIX + "/service-request/updated-on";
+	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_NOTE = EXTENSION_PREFIX + "/service-request/task-note";
 }

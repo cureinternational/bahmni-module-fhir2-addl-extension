@@ -133,13 +133,6 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 			serviceRequest.addNote(new Annotation().setText(order.getFulfillerComment()));
 		}
 
-		if (order.getCreator() != null) {
-			Reference creatorRef = userPractitionerReferenceTranslator.toFhirResource(order.getCreator());
-			if (creatorRef != null) {
-				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_CREATED_BY, creatorRef);
-			}
-		}
-
 		if (order.getChangedBy() != null) {
 			Reference changedByRef = userPractitionerReferenceTranslator.toFhirResource(order.getChangedBy());
 			if (changedByRef != null) {
@@ -221,11 +214,16 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 			Reference ownerRef = new Reference();
 			ownerRef.setReference(task.getOwnerReference().getReference());
 			ownerRef.setType(task.getOwnerReference().getType());
+			Provider owner = providerReferenceTranslator.toOpenmrsType(ownerRef);
+			if (owner != null) {
+				ownerRef.setDisplay(owner.getName());
+			}
 			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER, ownerRef);
 		}
 		
 		if (task.getComment() != null && !task.getComment().trim().isEmpty()) {
-			serviceRequest.addNote(new Annotation().setText(task.getComment()));
+			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_NOTE,
+			    new Annotation().setText(task.getComment()));
 		}
 		
 		if (task.getDateCreated() != null) {
@@ -236,6 +234,12 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 		if (task.getStatus() != null) {
 			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_STATUS, new StringType(task
 			        .getStatus().name()));
+		}
+		if (task.getCreator() != null) {
+			Reference creatorRef = userPractitionerReferenceTranslator.toFhirResource(task.getCreator());
+			if (creatorRef != null) {
+				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_CREATED_BY, creatorRef);
+			}
 		}
 	}
 	

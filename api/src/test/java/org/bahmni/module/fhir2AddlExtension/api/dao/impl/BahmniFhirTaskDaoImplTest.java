@@ -275,6 +275,7 @@ public class BahmniFhirTaskDaoImplTest {
 		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
 		when(criteria.createAlias("basedOnReferences", "bor")).thenReturn(criteria);
 		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
 		when(criteria.setMaxResults(1)).thenReturn(criteria);
 		when(criteria.uniqueResult()).thenReturn(expectedTask);
 		
@@ -291,6 +292,7 @@ public class BahmniFhirTaskDaoImplTest {
 		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
 		when(criteria.createAlias("basedOnReferences", "bor")).thenReturn(criteria);
 		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
 		when(criteria.setMaxResults(1)).thenReturn(criteria);
 		when(criteria.uniqueResult()).thenReturn(null);
 		

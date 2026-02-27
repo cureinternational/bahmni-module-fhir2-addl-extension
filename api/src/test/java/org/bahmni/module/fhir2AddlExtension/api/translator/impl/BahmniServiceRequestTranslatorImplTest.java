@@ -1204,23 +1204,6 @@ public class BahmniServiceRequestTranslatorImplTest {
 	}
 	
 	@Test
-	public void toFhirResource_shouldMapCreatorToExtension() {
-		User creator = new User();
-		creator.setUuid("creator-uuid");
-		order.setCreator(creator);
-		
-		Reference creatorRef = new Reference("Practitioner/creator-uuid");
-		when(userPractitionerReferenceTranslator.toFhirResource(creator)).thenReturn(creatorRef);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_CREATED_BY);
-		assertThat(ext, notNullValue());
-		assertThat(((Reference) ext.getValue()).getReference(), equalTo("Practitioner/creator-uuid"));
-	}
-	
-	@Test
 	public void toFhirResource_shouldMapChangedByToExtension() {
 		User changedBy = new User();
 		changedBy.setUuid("changed-by-uuid");
@@ -1287,8 +1270,9 @@ public class BahmniServiceRequestTranslatorImplTest {
 		ServiceRequest result = translator.toFhirResource(order);
 		
 		assertThat(result, notNullValue());
-		assertThat(result.getNote(), hasSize(1));
-		assertThat(result.getNote().get(0).getText(), equalTo("Task comment"));
+		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_NOTE);
+		assertThat(ext, notNullValue());
+		assertThat(((Annotation) ext.getValue()).getText(), equalTo("Task comment"));
 	}
 	
 	@Test
