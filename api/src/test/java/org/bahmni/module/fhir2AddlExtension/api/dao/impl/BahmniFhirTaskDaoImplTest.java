@@ -266,38 +266,38 @@ public class BahmniFhirTaskDaoImplTest {
 		fhirTask.setComment(comment);
 		return fhirTask;
 	}
-
+	
 	@Test
 	public void getTaskByOrderUuid_shouldReturnTaskWhenFound() {
 		FhirTask expectedTask = createFhirTaskWithBasedOn(FhirTask.TaskStatus.ACCEPTED, ORDER_UUID);
 		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
-
+		
 		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
 		when(criteria.createAlias("basedOnReferences", "bor")).thenReturn(criteria);
 		when(criteria.add(any())).thenReturn(criteria);
 		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
 		when(criteria.setMaxResults(1)).thenReturn(criteria);
 		when(criteria.uniqueResult()).thenReturn(expectedTask);
-
+		
 		FhirTask result = taskDao.getTaskByOrderUuid(ORDER_UUID);
-
+		
 		assertThat(result, notNullValue());
 		assertThat(result.getStatus(), equalTo(FhirTask.TaskStatus.ACCEPTED));
 	}
-
+	
 	@Test
 	public void getTaskByOrderUuid_shouldReturnNullWhenNoTaskFound() {
 		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
-
+		
 		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
 		when(criteria.createAlias("basedOnReferences", "bor")).thenReturn(criteria);
 		when(criteria.add(any())).thenReturn(criteria);
 		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
 		when(criteria.setMaxResults(1)).thenReturn(criteria);
 		when(criteria.uniqueResult()).thenReturn(null);
-
+		
 		FhirTask result = taskDao.getTaskByOrderUuid(ORDER_UUID);
-
+		
 		assertThat(result, nullValue());
 	}
 }
