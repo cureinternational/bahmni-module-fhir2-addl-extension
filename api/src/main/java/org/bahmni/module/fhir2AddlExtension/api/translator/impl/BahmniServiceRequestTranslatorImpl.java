@@ -144,7 +144,7 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 			}
 		}
         if(order.getFulfillerStatus() != null) {
-            serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_STATUS, new StringType(order.getFulfillerStatus().name()));
+            serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS, new StringType(order.getFulfillerStatus().name()));
         }
 
 		mapTaskFields(serviceRequest, order.getUuid());

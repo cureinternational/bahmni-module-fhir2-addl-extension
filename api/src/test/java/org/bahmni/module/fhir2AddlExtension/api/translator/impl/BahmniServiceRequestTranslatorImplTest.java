@@ -1304,7 +1304,7 @@ public class BahmniServiceRequestTranslatorImplTest {
 		ServiceRequest result = translator.toFhirResource(order);
 		
 		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_STATUS);
+		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS);
 		assertThat(ext, notNullValue());
 		assertThat(((StringType) ext.getValue()).getValue(), equalTo(order.getFulfillerStatus().name()));
 	}
@@ -1318,7 +1318,7 @@ public class BahmniServiceRequestTranslatorImplTest {
 		assertThat(result, notNullValue());
 		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER), nullValue());
 		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_CREATED_ON), nullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_STATUS), nullValue());
+		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS), nullValue());
 	}
 	
 	@Test
