@@ -1,16 +1,22 @@
 *.class
-*.iml
 .settings
 .project
 .classpath
-.DS_Store
-.idea
-.mvn
-.vscode
-
+.talismanrc
 target
 
 # Package Files #
 *.jar
+*.marker
 *.war
 *.ear
+.idea
+.DS_Store
+
+/omod/target/*
+/api/target/*
+*.iml
+*/logs/*
+logs/*
+classes/
+.mvn/wrapper/*.jar
