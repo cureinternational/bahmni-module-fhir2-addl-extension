@@ -56,4 +56,12 @@ public final class BahmniFhirConstants {
 	public static final String FHIR_EXT_OBSERVATION_FORM_NAMESPACE_PATH = EXTENSION_PREFIX + "/observation/form-namespace-path";
 	public static final String INCLUDE_BASED_ON_PARAM = "basedon";
 	public static final String IMAGING_STUDY = "ImagingStudy";
+
+	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_OWNER = EXTENSION_PREFIX + "/service-request/task-owner";
+	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_CREATED_ON = EXTENSION_PREFIX + "/service-request/task-created-on";
+	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_STATUS = EXTENSION_PREFIX + "/service-request/task-status";
+	public static final String FHIR_EXT_SERVICE_REQUEST_CREATED_BY = EXTENSION_PREFIX + "/service-request/created-by";
+	public static final String FHIR_EXT_SERVICE_REQUEST_UPDATED_BY = EXTENSION_PREFIX + "/service-request/updated-by";
+	public static final String FHIR_EXT_SERVICE_REQUEST_UPDATED_ON = EXTENSION_PREFIX + "/service-request/updated-on";
+	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_NOTE = EXTENSION_PREFIX + "/service-request/task-note";
 }
