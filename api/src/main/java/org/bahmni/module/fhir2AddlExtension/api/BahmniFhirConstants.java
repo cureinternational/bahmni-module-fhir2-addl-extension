@@ -67,4 +67,5 @@ public final class BahmniFhirConstants {
 
 	public static final String FORM_NAME_SEARCH_HANDLER = "task.form.name.search.handler";
 	public static final String SP_TASK_FORM_NAME = "formName";
+	public static final String FHIR_EXT_TASK_FORM_NAME = EXTENSION_PREFIX + "/task/form-name";
 }
