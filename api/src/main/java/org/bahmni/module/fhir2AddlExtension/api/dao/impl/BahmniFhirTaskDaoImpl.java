@@ -2,9 +2,11 @@ package org.bahmni.module.fhir2AddlExtension.api.dao.impl;
 
 import javax.annotation.Nonnull;
 
+import java.util.Optional;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.bahmni.module.fhir2AddlExtension.api.BahmniFhirConstants;
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirServiceRequestDao;
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.bahmni.module.fhir2AddlExtension.api.utils.TaskStatusToFulfillerStatusMapper;
@@ -12,9 +14,13 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.openmrs.Order;
 import org.openmrs.api.db.DAOException;
+import org.openmrs.module.fhir2.FhirConstants;
 import org.openmrs.module.fhir2.api.dao.impl.FhirTaskDaoImpl;
+import org.openmrs.module.fhir2.api.search.param.SearchParameterMap;
 import org.openmrs.module.fhir2.model.FhirReference;
 import org.openmrs.module.fhir2.model.FhirTask;
+import ca.uhn.fhir.rest.param.ReferenceAndListParam;
+import ca.uhn.fhir.rest.param.StringAndListParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -41,6 +47,44 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 			updateFulfillerStatusFromTask(savedTask);
 		}
 		return savedTask;
+	}
+	
+	@Override
+	protected void setupSearchParams(Criteria criteria, SearchParameterMap theParams) {
+		super.setupSearchParams(criteria, theParams);
+		theParams.getParameters().forEach(entry -> {
+			switch (entry.getKey()) {
+				case FhirConstants.ENCOUNTER_REFERENCE_SEARCH_HANDLER:
+					entry.getValue().forEach(
+					    param -> handleEncounterForTask(criteria, (ReferenceAndListParam) param.getParam()));
+					break;
+				case BahmniFhirConstants.FORM_NAME_SEARCH_HANDLER:
+					entry.getValue().forEach(
+					    param -> handleFormName(criteria, (StringAndListParam) param.getParam()));
+					break;
+			}
+		});
+	}
+	
+	private void handleEncounterForTask(Criteria criteria, ReferenceAndListParam encounterReference) {
+		if (encounterReference == null) {
+			return;
+		}
+		if (lacksAlias(criteria, "er")) {
+			criteria.createAlias("encounterReference", "er");
+		}
+		handleAndListParam(encounterReference,
+		    ref -> ref.getIdPart() != null ? Optional.of(Restrictions.eq("er.targetUuid", ref.getIdPart()))
+		            : Optional.empty()).ifPresent(criteria::add);
+	}
+	
+	private void handleFormName(Criteria criteria, StringAndListParam formName) {
+		if (formName == null) {
+			return;
+		}
+		handleAndListParam(formName,
+		    param -> param.getValue() != null ? Optional.of(Restrictions.eq("name", param.getValue()))
+		            : Optional.empty()).ifPresent(criteria::add);
 	}
 	
 	@Override

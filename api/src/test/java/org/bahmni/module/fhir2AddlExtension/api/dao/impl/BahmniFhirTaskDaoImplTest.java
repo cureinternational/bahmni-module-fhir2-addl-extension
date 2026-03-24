@@ -268,6 +268,20 @@ public class BahmniFhirTaskDaoImplTest {
 	}
 	
 	@Test
+	public void createOrUpdate_shouldNotUpdateFulfillerStatusWhenBasedOnIsEncounterType() {
+		FhirTask fhirTask = new FhirTask();
+		fhirTask.setStatus(FhirTask.TaskStatus.ACCEPTED);
+		FhirReference ref = new FhirReference();
+		ref.setType("Encounter");
+		ref.setTargetUuid("encounter-uuid-456");
+		fhirTask.setBasedOnReferences(Collections.singleton(ref));
+		
+		taskDao.createOrUpdate(fhirTask);
+		
+		verify(serviceRequestDao, never()).updateOrder(any());
+	}
+	
+	@Test
 	public void getTaskByOrderUuid_shouldReturnTaskWhenFound() {
 		FhirTask expectedTask = createFhirTaskWithBasedOn(FhirTask.TaskStatus.ACCEPTED, ORDER_UUID);
 		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
