@@ -65,7 +65,7 @@ public final class BahmniFhirConstants {
 	public static final String FHIR_EXT_SERVICE_REQUEST_UPDATED_ON = EXTENSION_PREFIX + "/service-request/updated-on";
 	public static final String FHIR_EXT_SERVICE_REQUEST_TASK_NOTE = EXTENSION_PREFIX + "/service-request/task-note";
 
-	public static final String FORM_NAME_SEARCH_HANDLER = "task.form.name.search.handler";
-	public static final String SP_TASK_FORM_NAME = "formName";
-	public static final String FHIR_EXT_TASK_FORM_NAME = EXTENSION_PREFIX + "/task/form-name";
+	public static final String NAME_SEARCH_HANDLER = "task.name.search.handler";
+	public static final String SP_TASK_NAME = "name";
+	public static final String FHIR_EXT_TASK_NAME = EXTENSION_PREFIX + "/task/name";
 }

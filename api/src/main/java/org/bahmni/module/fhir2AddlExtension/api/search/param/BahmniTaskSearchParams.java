@@ -17,7 +17,7 @@ public class BahmniTaskSearchParams extends TaskSearchParams {
 	
 	private ReferenceAndListParam encounterReference;
 	
-	private StringAndListParam formName;
+	private StringAndListParam name;
 	
 	@Override
 	public SearchParameterMap toSearchParameterMap() {
@@ -25,8 +25,8 @@ public class BahmniTaskSearchParams extends TaskSearchParams {
 		if (encounterReference != null) {
 			map.addParameter(FhirConstants.ENCOUNTER_REFERENCE_SEARCH_HANDLER, encounterReference);
 		}
-		if (formName != null) {
-			map.addParameter(BahmniFhirConstants.FORM_NAME_SEARCH_HANDLER, formName);
+		if (name != null) {
+			map.addParameter(BahmniFhirConstants.NAME_SEARCH_HANDLER, name);
 		}
 		return map;
 	}

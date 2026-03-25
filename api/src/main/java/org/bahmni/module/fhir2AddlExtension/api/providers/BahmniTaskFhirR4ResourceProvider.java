@@ -42,7 +42,7 @@ public class BahmniTaskFhirR4ResourceProvider extends TaskFhirResourceProvider {
 	        @OptionalParam(name = Task.SP_STATUS) TokenAndListParam status,
 	        @OptionalParam(name = Task.SP_CODE) TokenAndListParam taskCode,
 	        @OptionalParam(name = Task.SP_ENCOUNTER, chainWhitelist = { "" }, targetTypes = Encounter.class) ReferenceAndListParam encounterReference,
-	        @OptionalParam(name = BahmniFhirConstants.SP_TASK_FORM_NAME) StringAndListParam formName,
+	        @OptionalParam(name = BahmniFhirConstants.SP_TASK_NAME) StringAndListParam name,
 	        @OptionalParam(name = Task.SP_RES_ID) TokenAndListParam id,
 	        @OptionalParam(name = "_lastUpdated") DateRangeParam lastUpdated,
 	        @IncludeParam(allow = { "Task:" + Task.SP_BASED_ON, "Task:" + Task.SP_OWNER,
@@ -56,7 +56,7 @@ public class BahmniTaskFhirR4ResourceProvider extends TaskFhirResourceProvider {
 		params.setStatus(status);
 		params.setTaskCode(taskCode);
 		params.setEncounterReference(encounterReference);
-		params.setFormName(formName);
+		params.setName(name);
 		params.setId(id);
 		params.setLastUpdated(lastUpdated);
 		params.setIncludes(includes != null ? includes : new HashSet<>());

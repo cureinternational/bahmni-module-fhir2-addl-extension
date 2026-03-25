@@ -58,9 +58,9 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 					entry.getValue().forEach(
 					    param -> handleEncounterForTask(criteria, (ReferenceAndListParam) param.getParam()));
 					break;
-				case BahmniFhirConstants.FORM_NAME_SEARCH_HANDLER:
+				case BahmniFhirConstants.NAME_SEARCH_HANDLER:
 					entry.getValue().forEach(
-					    param -> handleFormName(criteria, (StringAndListParam) param.getParam()));
+					    param -> handleName(criteria, (StringAndListParam) param.getParam()));
 					break;
 			}
 		});
@@ -78,11 +78,11 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 		            : Optional.empty()).ifPresent(criteria::add);
 	}
 	
-	private void handleFormName(Criteria criteria, StringAndListParam formName) {
-		if (formName == null) {
+	private void handleName(Criteria criteria, StringAndListParam name) {
+		if (name == null) {
 			return;
 		}
-		handleAndListParam(formName,
+		handleAndListParam(name,
 		    param -> param.getValue() != null ? Optional.of(Restrictions.eq("name", param.getValue()))
 		            : Optional.empty()).ifPresent(criteria::add);
 	}

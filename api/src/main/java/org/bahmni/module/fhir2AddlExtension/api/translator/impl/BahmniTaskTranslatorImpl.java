@@ -29,7 +29,7 @@ public class BahmniTaskTranslatorImpl extends TaskTranslatorImpl {
 		// Map fhir_task.name → extension, but skip auto-generated names like "Task/{uuid}"
 		String name = fhirTask.getName();
 		if (name != null && !name.contains("/")) {
-			task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME, new StringType(name));
+			task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_NAME, new StringType(name));
 		}
 		
 		if (fhirTask.getOwnerReference() != null) {
@@ -51,9 +51,9 @@ public class BahmniTaskTranslatorImpl extends TaskTranslatorImpl {
 	@Override
 	public FhirTask toOpenmrsType(@Nonnull Task task) {
 		FhirTask fhirTask = super.toOpenmrsType(task);
-		Extension formNameExt = task.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME);
-		if (formNameExt != null && formNameExt.getValue() instanceof StringType) {
-			fhirTask.setName(((StringType) formNameExt.getValue()).getValue());
+		Extension nameExt = task.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_NAME);
+		if (nameExt != null && nameExt.getValue() instanceof StringType) {
+			fhirTask.setName(((StringType) nameExt.getValue()).getValue());
 		}
 		return fhirTask;
 	}
@@ -61,9 +61,9 @@ public class BahmniTaskTranslatorImpl extends TaskTranslatorImpl {
 	@Override
 	public FhirTask toOpenmrsType(@Nonnull FhirTask existingTask, @Nonnull Task task) {
 		FhirTask fhirTask = super.toOpenmrsType(existingTask, task);
-		Extension formNameExt = task.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME);
-		if (formNameExt != null && formNameExt.getValue() instanceof StringType) {
-			fhirTask.setName(((StringType) formNameExt.getValue()).getValue());
+		Extension nameExt = task.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_NAME);
+		if (nameExt != null && nameExt.getValue() instanceof StringType) {
+			fhirTask.setName(((StringType) nameExt.getValue()).getValue());
 		}
 		return fhirTask;
 	}

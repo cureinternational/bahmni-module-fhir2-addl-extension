@@ -32,16 +32,16 @@ public class BahmniTaskSearchParamsTest {
 	}
 	
 	@Test
-	public void toSearchParameterMap_shouldIncludeFormNameWhenSet() {
-		StringAndListParam formName = new StringAndListParam().addAnd(new StringOrListParam().add(new StringParam(
+	public void toSearchParameterMap_shouldIncludeNameWhenSet() {
+		StringAndListParam name = new StringAndListParam().addAnd(new StringOrListParam().add(new StringParam(
 		        "PatientHistory")));
 		
 		BahmniTaskSearchParams params = new BahmniTaskSearchParams();
-		params.setFormName(formName);
+		params.setName(name);
 		
 		SearchParameterMap map = params.toSearchParameterMap();
 		
-		assertThat(map.getParameters(BahmniFhirConstants.FORM_NAME_SEARCH_HANDLER), not(empty()));
+		assertThat(map.getParameters(BahmniFhirConstants.NAME_SEARCH_HANDLER), not(empty()));
 	}
 	
 	@Test
@@ -54,12 +54,12 @@ public class BahmniTaskSearchParamsTest {
 	}
 	
 	@Test
-	public void toSearchParameterMap_shouldNotIncludeFormNameHandlerWhenNotSet() {
+	public void toSearchParameterMap_shouldNotIncludeNameHandlerWhenNotSet() {
 		BahmniTaskSearchParams params = new BahmniTaskSearchParams();
 		
 		SearchParameterMap map = params.toSearchParameterMap();
 		
-		assertThat(map.getParameters(BahmniFhirConstants.FORM_NAME_SEARCH_HANDLER), empty());
+		assertThat(map.getParameters(BahmniFhirConstants.NAME_SEARCH_HANDLER), empty());
 	}
 	
 	@Test

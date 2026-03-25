@@ -77,9 +77,9 @@ public class BahmniTaskTranslatorImplTest {
 	// ── toOpenmrsType (create) ───────────────────────────────────────────────
 	
 	@Test
-	public void toOpenmrsType_shouldStoreFormNameExtensionInNameField() {
+	public void toOpenmrsType_shouldStoreNameExtensionInNameField() {
 		Task task = new Task();
-		task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME, new StringType("PatientHistory"));
+		task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_NAME, new StringType("PatientHistory"));
 		task.setStatus(Task.TaskStatus.COMPLETED);
 		task.setIntent(Task.TaskIntent.ORDER);
 		
@@ -103,13 +103,13 @@ public class BahmniTaskTranslatorImplTest {
 	// ── toOpenmrsType (update) ───────────────────────────────────────────────
 	
 	@Test
-	public void toOpenmrsTypeUpdate_shouldStoreFormNameExtensionInNameField() {
+	public void toOpenmrsTypeUpdate_shouldStoreNameExtensionInNameField() {
 		FhirTask existingTask = new FhirTask();
 		existingTask.setInput(Collections.emptySet());
 		existingTask.setOutput(Collections.emptySet());
 		
 		Task task = new Task();
-		task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME, new StringType("ExaminationForm"));
+		task.addExtension(BahmniFhirConstants.FHIR_EXT_TASK_NAME, new StringType("ExaminationForm"));
 		task.setStatus(Task.TaskStatus.COMPLETED);
 		task.setIntent(Task.TaskIntent.ORDER);
 		
@@ -121,7 +121,7 @@ public class BahmniTaskTranslatorImplTest {
 	// ── toFhirResource ───────────────────────────────────────────────────────
 	
 	@Test
-	public void toFhirResource_shouldMapFormNameToExtension() {
+	public void toFhirResource_shouldMapNameToExtension() {
 		FhirTask fhirTask = new FhirTask();
 		fhirTask.setName("PatientHistory"); // plain name — no "/"
 		fhirTask.setStatus(FhirTask.TaskStatus.COMPLETED);
@@ -131,7 +131,7 @@ public class BahmniTaskTranslatorImplTest {
 		
 		Task result = translator.toFhirResource(fhirTask);
 		
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME);
+		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_NAME);
 		assertThat(ext, notNullValue());
 		assertThat(((StringType) ext.getValue()).getValue(), equalTo("PatientHistory"));
 	}
@@ -147,7 +147,7 @@ public class BahmniTaskTranslatorImplTest {
 		
 		Task result = translator.toFhirResource(fhirTask);
 		
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME), nullValue());
+		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_NAME), nullValue());
 	}
 	
 	@Test
@@ -160,7 +160,7 @@ public class BahmniTaskTranslatorImplTest {
 		
 		Task result = translator.toFhirResource(fhirTask);
 		
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_FORM_NAME), nullValue());
+		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_TASK_NAME), nullValue());
 	}
 	
 	@Test
