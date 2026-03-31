@@ -2,6 +2,7 @@ package org.bahmni.module.fhir2AddlExtension.api.dao.impl;
 
 import javax.annotation.Nonnull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.openmrs.Order;
 import org.openmrs.api.db.DAOException;
 import org.openmrs.module.fhir2.FhirConstants;
 import org.openmrs.module.fhir2.api.dao.impl.FhirTaskDaoImpl;
+import org.openmrs.module.fhir2.api.search.param.PropParam;
 import org.openmrs.module.fhir2.api.search.param.SearchParameterMap;
 import org.openmrs.module.fhir2.model.FhirReference;
 import org.openmrs.module.fhir2.model.FhirTask;
@@ -51,7 +53,16 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 	
 	@Override
 	protected void setupSearchParams(Criteria criteria, SearchParameterMap theParams) {
+		List<PropParam<?>> forReferenceParams = theParams.getParameters(FhirConstants.FOR_REFERENCE_SEARCH_HANDLER);
+		theParams.getParameters().removeIf(entry -> FhirConstants.FOR_REFERENCE_SEARCH_HANDLER.equals(entry.getKey()));
+
 		super.setupSearchParams(criteria, theParams);
+
+		if (forReferenceParams != null) {
+			forReferenceParams.forEach(
+			    param -> handleForReference(criteria, (ReferenceAndListParam) param.getParam()));
+		}
+
 		theParams.getParameters().forEach(entry -> {
 			switch (entry.getKey()) {
 				case FhirConstants.ENCOUNTER_REFERENCE_SEARCH_HANDLER:
@@ -84,6 +95,19 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 		}
 		handleAndListParam(name,
 		    param -> param.getValue() != null ? Optional.of(Restrictions.eq("name", param.getValue()))
+		            : Optional.empty()).ifPresent(criteria::add);
+	}
+	
+	private void handleForReference(Criteria criteria, ReferenceAndListParam forReference) {
+		if (forReference == null) {
+			return;
+		}
+		if (lacksAlias(criteria, "fr")) {
+			criteria.createAlias("forReference", "fr");
+		}
+		System.out.println("Handling forReference with " + forReference + " values");
+		handleAndListParam(forReference,
+		    ref -> ref.getIdPart() != null ? Optional.of(Restrictions.eq("fr.targetUuid", ref.getIdPart()))
 		            : Optional.empty()).ifPresent(criteria::add);
 	}
 	
