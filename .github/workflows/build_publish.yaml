@@ -84,3 +84,13 @@ jobs:
           asset_path: omod/target/fhir2addlextension-1.0.0-SNAPSHOT.omod
           asset_name: fhir2addlextension-1.0.0-SNAPSHOT.omod
           asset_content_type: application/octet-stream
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger build_publish_emr in cure-bahmni-docker
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.CURE_EMR_ORG_ACCESS_TOKEN }}" \
+            https://api.github.com/repos/cureinternational/cure-bahmni-docker/actions/workflows/build_publish_emr.yml/dispatches \
+            -d '{"ref":"cure-master-feature"}'
