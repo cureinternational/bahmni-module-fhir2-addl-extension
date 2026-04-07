@@ -1,7 +1,14 @@
 package org.bahmni.module.fhir2AddlExtension.api.providers;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.rest.annotation.IncludeParam;
+import ca.uhn.fhir.rest.annotation.Operation;
+import ca.uhn.fhir.rest.annotation.OperationParam;
 import ca.uhn.fhir.rest.annotation.OptionalParam;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.annotation.Sort;
@@ -11,19 +18,20 @@ import ca.uhn.fhir.rest.param.DateRangeParam;
 import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.param.StringAndListParam;
 import ca.uhn.fhir.rest.param.TokenAndListParam;
+import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import org.bahmni.module.fhir2AddlExtension.api.BahmniFhirConstants;
 import org.bahmni.module.fhir2AddlExtension.api.search.param.BahmniTaskSearchParams;
 import org.bahmni.module.fhir2AddlExtension.api.service.BahmniFhirTaskService;
+import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Task;
 import org.openmrs.module.fhir2.api.annotations.R4Provider;
 import org.openmrs.module.fhir2.providers.r4.TaskFhirResourceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
 
 @Component
 @R4Provider
@@ -63,5 +71,27 @@ public class BahmniTaskFhirR4ResourceProvider extends TaskFhirResourceProvider {
 		params.setSort(sort);
 
 		return bahmniFhirTaskService.searchForTasks(params);
+	}
+	
+	@Operation(name = BahmniFhirConstants.OPERATION_GET_PATIENT_TASKS, idempotent = true, type = Task.class)
+	public Bundle getPatientTasks(
+	        @OperationParam(name = BahmniFhirConstants.PARAM_PATIENT_UUID) StringType patientUuid,
+	        @OperationParam(name = BahmniFhirConstants.PARAM_CODE) List<StringType> codes) {
+
+		if (patientUuid == null || patientUuid.getValue().trim().isEmpty()) {
+			throw new InvalidRequestException("patientUuid is required");
+		}
+
+		List<String> codeValues = codes != null
+		        ? codes.stream().map(StringType::getValue).collect(Collectors.toList())
+		        : Collections.emptyList();
+
+		List<Task> tasks = bahmniFhirTaskService.getTasksByPatientUuid(patientUuid.getValue().trim(), codeValues);
+
+		Bundle bundle = new Bundle();
+		bundle.setType(Bundle.BundleType.SEARCHSET);
+		bundle.setTotal(tasks.size());
+		tasks.forEach(task -> bundle.addEntry().setResource(task));
+		return bundle;
 	}
 }

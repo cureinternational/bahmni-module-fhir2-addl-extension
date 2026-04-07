@@ -11,7 +11,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import ca.uhn.fhir.rest.param.ReferenceAndListParam;
 import ca.uhn.fhir.rest.param.ReferenceOrListParam;
@@ -350,5 +352,76 @@ public class BahmniFhirTaskDaoImplTest {
 		FhirTask result = taskDao.getTaskByOrderUuid(ORDER_UUID);
 		
 		assertThat(result, nullValue());
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldReturnTasksForPatient() {
+		String patientUuid = "patient-uuid-abc";
+		FhirTask task1 = new FhirTask();
+		FhirTask task2 = new FhirTask();
+		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
+		
+		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
+		when(criteria.createAlias("forReference", "fr")).thenReturn(criteria);
+		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
+		when(criteria.list()).thenReturn(Arrays.asList(task1, task2));
+		
+		List<FhirTask> result = taskDao.getTasksByPatientUuid(patientUuid, Collections.emptyList());
+		
+		assertThat(result, notNullValue());
+		assertThat(result.size(), equalTo(2));
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldFilterByCodeConceptUuidsWhenProvided() {
+		String patientUuid = "patient-uuid-abc";
+		List<String> codeUuids = Arrays.asList("concept-uuid-1", "concept-uuid-2");
+		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
+		
+		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
+		when(criteria.createAlias("forReference", "fr")).thenReturn(criteria);
+		when(criteria.createAlias("taskCode", "tc")).thenReturn(criteria);
+		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
+		when(criteria.list()).thenReturn(Collections.emptyList());
+		
+		taskDao.getTasksByPatientUuid(patientUuid, codeUuids);
+		
+		verify(criteria).createAlias("taskCode", "tc");
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldNotJoinTaskCodeWhenCodesNotProvided() {
+		String patientUuid = "patient-uuid-abc";
+		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
+		
+		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
+		when(criteria.createAlias("forReference", "fr")).thenReturn(criteria);
+		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
+		when(criteria.list()).thenReturn(Collections.emptyList());
+		
+		taskDao.getTasksByPatientUuid(patientUuid, null);
+		
+		verify(criteria, never()).createAlias(org.mockito.ArgumentMatchers.eq("taskCode"),
+		    org.mockito.ArgumentMatchers.anyString());
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldReturnEmptyListWhenNoTasksFound() {
+		String patientUuid = "patient-uuid-abc";
+		Criteria criteria = org.mockito.Mockito.mock(Criteria.class);
+		
+		when(session.createCriteria(FhirTask.class)).thenReturn(criteria);
+		when(criteria.createAlias("forReference", "fr")).thenReturn(criteria);
+		when(criteria.add(any())).thenReturn(criteria);
+		when(criteria.addOrder(any(org.hibernate.criterion.Order.class))).thenReturn(criteria);
+		when(criteria.list()).thenReturn(Collections.emptyList());
+		
+		List<FhirTask> result = taskDao.getTasksByPatientUuid(patientUuid, Collections.emptyList());
+		
+		assertThat(result, notNullValue());
+		assertThat(result.size(), equalTo(0));
 	}
 }

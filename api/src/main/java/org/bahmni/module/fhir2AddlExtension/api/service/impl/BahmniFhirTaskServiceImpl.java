@@ -4,6 +4,10 @@ import ca.uhn.fhir.rest.api.server.IBundleProvider;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.bahmni.module.fhir2AddlExtension.api.service.BahmniFhirTaskService;
 import org.openmrs.module.fhir2.api.dao.FhirTaskDao;
@@ -39,5 +43,12 @@ public class BahmniFhirTaskServiceImpl extends BaseFhirService<Task, FhirTask> i
 	@Override
 	public IBundleProvider searchForTasks(TaskSearchParams taskSearchParams) {
 		return searchQuery.getQueryResults(taskSearchParams.toSearchParameterMap(), dao, translator, searchQueryInclude);
+	}
+	
+	@Override
+	public List<org.hl7.fhir.r4.model.Task> getTasksByPatientUuid(String patientUuid, List<String> codeConceptUuids) {
+		return dao.getTasksByPatientUuid(patientUuid, codeConceptUuids).stream()
+		        .map(translator::toFhirResource)
+		        .collect(Collectors.toList());
 	}
 }
