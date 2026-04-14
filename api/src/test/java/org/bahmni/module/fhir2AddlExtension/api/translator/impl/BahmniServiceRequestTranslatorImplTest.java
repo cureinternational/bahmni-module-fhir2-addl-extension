@@ -14,11 +14,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.openmrs.*;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.OrderService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.fhir2.FhirConstants;
 import org.openmrs.module.fhir2.api.translators.ConceptTranslator;
 import org.openmrs.module.fhir2.api.translators.EncounterReferenceTranslator;
@@ -29,6 +29,9 @@ import org.openmrs.module.fhir2.api.translators.impl.OrderIdentifierTranslatorIm
 import org.openmrs.module.fhir2.model.FhirReference;
 import org.openmrs.module.fhir2.model.FhirTask;
 import org.openmrs.order.OrderUtilTest;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -38,8 +41,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockIgnore({ "javax.*", "org.apache.*", "org.slf4j.*", "org.xml.*", "com.sun.*" })
+@PrepareForTest({ Context.class })
 public class BahmniServiceRequestTranslatorImplTest {
 	
 	public static final String ORDER_TYPE_UUID = "52a447d3-a64a-11e3-9aeb-50e549534c5e";
@@ -1334,5 +1340,48 @@ public class BahmniServiceRequestTranslatorImplTest {
 		
 		assertThat(result, notNullValue());
 		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER), nullValue());
+	}
+	
+	@Test
+	public void toFhirResource_shouldAddOrderShortNameExtensionWhenConceptHasShortName() {
+		mockStatic(Context.class);
+		when(Context.getLocale()).thenReturn(Locale.ENGLISH);
+		
+		ConceptClass conceptClass = new ConceptClass();
+		conceptClass.setName("Other");
+		Concept mockConcept = mock(Concept.class);
+		when(mockConcept.getConceptClass()).thenReturn(conceptClass);
+		
+		ConceptName shortConceptName = new ConceptName();
+		shortConceptName.setName("BG");
+		when(mockConcept.getShortNameInLocale(Locale.ENGLISH)).thenReturn(shortConceptName);
+		
+		order.setConcept(mockConcept);
+		
+		ServiceRequest result = translator.toFhirResource(order);
+		
+		assertThat(result, notNullValue());
+		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_SHORT_NAME);
+		assertThat(ext, notNullValue());
+		assertThat(((StringType) ext.getValue()).getValue(), equalTo("BG"));
+	}
+	
+	@Test
+	public void toFhirResource_shouldNotAddOrderShortNameExtensionWhenConceptHasNoShortName() {
+		mockStatic(Context.class);
+		when(Context.getLocale()).thenReturn(Locale.ENGLISH);
+		
+		ConceptClass conceptClass = new ConceptClass();
+		conceptClass.setName("Other");
+		Concept mockConcept = mock(Concept.class);
+		when(mockConcept.getConceptClass()).thenReturn(conceptClass);
+		when(mockConcept.getShortNameInLocale(Locale.ENGLISH)).thenReturn(null);
+		
+		order.setConcept(mockConcept);
+		
+		ServiceRequest result = translator.toFhirResource(order);
+		
+		assertThat(result, notNullValue());
+		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_SHORT_NAME), nullValue());
 	}
 }

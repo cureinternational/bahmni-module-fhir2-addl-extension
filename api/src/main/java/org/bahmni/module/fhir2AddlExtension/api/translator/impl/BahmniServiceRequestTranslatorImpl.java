@@ -10,12 +10,8 @@ import org.bahmni.module.fhir2AddlExtension.api.translator.OrderTypeTranslator;
 import org.bahmni.module.fhir2AddlExtension.api.translator.ServiceRequestPriorityTranslator;
 import org.bahmni.module.fhir2AddlExtension.api.validators.ServiceRequestValidator;
 import org.hl7.fhir.r4.model.*;
-import org.openmrs.Concept;
+import org.openmrs.*;
 import org.openmrs.Encounter;
-import org.openmrs.Order;
-import org.openmrs.Provider;
-import org.openmrs.CareSetting;
-import org.openmrs.User;
 import org.openmrs.api.OrderService;
 import org.openmrs.module.fhir2.api.translators.*;
 import org.openmrs.module.fhir2.model.FhirTask;
@@ -24,6 +20,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
+import org.openmrs.api.context.Context;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
@@ -146,6 +143,12 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
         if(order.getFulfillerStatus() != null) {
             serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS, new StringType(order.getFulfillerStatus().name()));
         }
+		if (order.getConcept() != null && Context.getLocale() != null) {
+			ConceptName concept = order.getConcept().getShortNameInLocale(Context.getLocale());
+			if(concept != null) {
+				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_SHORT_NAME, new StringType(concept.getName()));
+			}
+		}
 
 		mapTaskFields(serviceRequest, order.getUuid());
 
