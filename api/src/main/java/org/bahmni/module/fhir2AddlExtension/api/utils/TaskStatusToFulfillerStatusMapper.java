@@ -21,6 +21,8 @@ public final class TaskStatusToFulfillerStatusMapper {
 				return Order.FulfillerStatus.COMPLETED;
 			case REJECTED:
 				return Order.FulfillerStatus.EXCEPTION;
+			case DRAFT:
+				return null;
 			default:
 				return null;
 		}

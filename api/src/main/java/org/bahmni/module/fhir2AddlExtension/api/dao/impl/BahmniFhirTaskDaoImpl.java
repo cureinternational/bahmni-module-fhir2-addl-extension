@@ -119,7 +119,8 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 	@Override
 	public FhirTask getTaskByOrderUuid(String orderUuid) {
 		Criteria criteria = getSessionFactory().getCurrentSession().createCriteria(FhirTask.class)
-		        .createAlias("basedOnReferences", "bor").add(Restrictions.eq("bor.targetUuid", orderUuid))
+		        .createAlias("basedOnReferences", "bor")
+		        .add(Restrictions.eq("bor.reference", "ServiceRequest/" + orderUuid))
 		        .addOrder(org.hibernate.criterion.Order.desc("dateCreated")).setMaxResults(1);
 		return (FhirTask) criteria.uniqueResult();
 	}
@@ -132,7 +133,10 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 		
 		Order.FulfillerStatus fulfillerStatus = TaskStatusToFulfillerStatusMapper.toFulfillerStatus(fhirTask.getStatus());
 		if (fulfillerStatus == null) {
-			log.warn("No fulfiller status mapping for task status {}, skipping update", fhirTask.getStatus());
+			if (fhirTask.getStatus() != null && fhirTask.getStatus() != FhirTask.TaskStatus.UNKNOWN
+			        && fhirTask.getStatus() != FhirTask.TaskStatus.DRAFT) {
+				log.warn("No fulfiller status mapping for task status {}, skipping update", fhirTask.getStatus());
+			}
 			return;
 		}
 		
