@@ -133,10 +133,7 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 		
 		Order.FulfillerStatus fulfillerStatus = TaskStatusToFulfillerStatusMapper.toFulfillerStatus(fhirTask.getStatus());
 		if (fulfillerStatus == null) {
-			if (fhirTask.getStatus() != null && fhirTask.getStatus() != FhirTask.TaskStatus.UNKNOWN
-			        && fhirTask.getStatus() != FhirTask.TaskStatus.DRAFT) {
-				log.warn("No fulfiller status mapping for task status {}, skipping update", fhirTask.getStatus());
-			}
+			log.warn("No fulfiller status mapping for task status {}, skipping update", fhirTask.getStatus());
 			return;
 		}
 		

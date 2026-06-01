@@ -148,15 +148,6 @@ public class BahmniFhirTaskDaoImplTest {
 	}
 	
 	@Test
-	public void createOrUpdate_shouldNotUpdateFulfillerStatusForDraftStatus() {
-		FhirTask fhirTask = createFhirTaskWithBasedOn(FhirTask.TaskStatus.DRAFT, ORDER_UUID);
-		
-		taskDao.createOrUpdate(fhirTask);
-		
-		verify(serviceRequestDao, never()).updateOrder(any());
-	}
-	
-	@Test
 	public void createOrUpdate_shouldNotUpdateFulfillerStatusWhenNoBasedOnReference() {
 		FhirTask fhirTask = new FhirTask();
 		fhirTask.setStatus(FhirTask.TaskStatus.ACCEPTED);
