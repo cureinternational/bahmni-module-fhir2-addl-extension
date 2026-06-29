@@ -119,8 +119,7 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 	@Override
 	public FhirTask getTaskByOrderUuid(String orderUuid) {
 		Criteria criteria = getSessionFactory().getCurrentSession().createCriteria(FhirTask.class)
-		        .createAlias("basedOnReferences", "bor")
-		        .add(Restrictions.eq("bor.reference", "ServiceRequest/" + orderUuid))
+		        .createAlias("basedOnReferences", "bor").add(Restrictions.eq("bor.targetUuid", orderUuid))
 		        .addOrder(org.hibernate.criterion.Order.desc("dateCreated")).setMaxResults(1);
 		return (FhirTask) criteria.uniqueResult();
 	}

@@ -145,7 +145,9 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 					new DateTimeType(order.getDateChanged()));
 			}
 		}
-
+        if(order.getFulfillerStatus() != null) {
+            serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS, new StringType(order.getFulfillerStatus().name()));
+        }
 		if (order.getConcept() != null && Context.getLocale() != null) {
 			ConceptName concept = order.getConcept().getShortNameInLocale(Context.getLocale());
 			if(concept != null) {
@@ -245,10 +247,6 @@ public class BahmniServiceRequestTranslatorImpl implements ServiceRequestTransla
 			if (creatorRef != null) {
 				serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_CREATED_BY, creatorRef);
 			}
-		}
-		if (task.getStatus() != null) {
-			serviceRequest.addExtension(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS, new StringType(task
-			        .getStatus().name()));
 		}
 	}
 	

@@ -1303,6 +1303,7 @@ public class BahmniServiceRequestTranslatorImplTest {
 		FhirTask task = new FhirTask();
 		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
 		task.setDateCreated(new Date());
+		order.setFulfillerStatus(Order.FulfillerStatus.RECEIVED);
 		
 		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
 		
@@ -1311,7 +1312,7 @@ public class BahmniServiceRequestTranslatorImplTest {
 		assertThat(result, notNullValue());
 		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS);
 		assertThat(ext, notNullValue());
-		assertThat(((StringType) ext.getValue()).getValue(), equalTo(task.getStatus().name()));
+		assertThat(((StringType) ext.getValue()).getValue(), equalTo(order.getFulfillerStatus().name()));
 	}
 	
 	@Test
