@@ -69,4 +69,8 @@ public final class BahmniFhirConstants {
 	public static final String NAME_SEARCH_HANDLER = "task.name.search.handler";
 	public static final String SP_TASK_NAME = "name";
 	public static final String FHIR_EXT_TASK_NAME = EXTENSION_PREFIX + "/task/name";
+
+	public static final String OPERATION_GET_PATIENT_TASKS = "$get-patient-tasks";
+	public static final String PARAM_PATIENT_UUID = "patientUuid";
+	public static final String PARAM_CODE = "code";
 }

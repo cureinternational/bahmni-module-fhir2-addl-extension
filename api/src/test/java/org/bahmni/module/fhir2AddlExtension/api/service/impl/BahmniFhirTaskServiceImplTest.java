@@ -2,9 +2,15 @@ package org.bahmni.module.fhir2AddlExtension.api.service.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.hl7.fhir.r4.model.Task;
@@ -62,6 +68,46 @@ public class BahmniFhirTaskServiceImplTest {
 		verify(translator).toOpenmrsType(inputTask);
 		verify(dao).createOrUpdate(openmrsTask);
 		verify(translator).toFhirResource(savedTask);
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldReturnTranslatedTasksForPatient() {
+		String patientUuid = "patient-uuid-abc";
+		List<String> codeUuids = Arrays.asList("concept-uuid-1");
+		FhirTask fhirTask1 = new FhirTask();
+		fhirTask1.setUuid("fhir-task-uuid-1");
+		FhirTask fhirTask2 = new FhirTask();
+		fhirTask2.setUuid("fhir-task-uuid-2");
+		Task task1 = new Task();
+		task1.setId("task-1");
+		Task task2 = new Task();
+		task2.setId("task-2");
+		
+		when(dao.getTasksByPatientUuid(patientUuid, codeUuids)).thenReturn(Arrays.asList(fhirTask1, fhirTask2));
+		when(translator.toFhirResource(same(fhirTask1))).thenReturn(task1);
+		when(translator.toFhirResource(same(fhirTask2))).thenReturn(task2);
+		
+		List<Task> result = taskService.getTasksByPatientUuid(patientUuid, codeUuids);
+		
+		assertThat(result, notNullValue());
+		assertThat(result, hasSize(2));
+		assertThat(result.get(0).getId(), equalTo("task-1"));
+		assertThat(result.get(1).getId(), equalTo("task-2"));
+		verify(dao).getTasksByPatientUuid(patientUuid, codeUuids);
+		verify(translator).toFhirResource(same(fhirTask1));
+		verify(translator).toFhirResource(same(fhirTask2));
+	}
+	
+	@Test
+	public void getTasksByPatientUuid_shouldReturnEmptyListWhenNoTasksFound() {
+		String patientUuid = "patient-uuid-abc";
+		
+		when(dao.getTasksByPatientUuid(patientUuid, Collections.emptyList())).thenReturn(Collections.emptyList());
+		
+		List<Task> result = taskService.getTasksByPatientUuid(patientUuid, Collections.emptyList());
+		
+		assertThat(result, notNullValue());
+		assertThat(result, hasSize(0));
 	}
 	
 	@Test

@@ -117,6 +117,20 @@ public class BahmniFhirTaskDaoImpl extends FhirTaskDaoImpl implements BahmniFhir
 	}
 	
 	@Override
+	public List<FhirTask> getTasksByPatientUuid(String patientUuid, List<String> codeConceptUuids) {
+		Criteria criteria = getSessionFactory().getCurrentSession().createCriteria(FhirTask.class)
+		        .createAlias("forReference", "fr").add(Restrictions.eq("fr.targetUuid", patientUuid))
+		        .add(Restrictions.eq("retired", false));
+		
+		if (codeConceptUuids != null && !codeConceptUuids.isEmpty()) {
+			criteria.createAlias("taskCode", "tc").add(Restrictions.in("tc.uuid", codeConceptUuids));
+		}
+		
+		criteria.addOrder(org.hibernate.criterion.Order.desc("dateCreated"));
+		return criteria.list();
+	}
+	
+	@Override
 	public FhirTask getTaskByOrderUuid(String orderUuid) {
 		Criteria criteria = getSessionFactory().getCurrentSession().createCriteria(FhirTask.class)
 		        .createAlias("basedOnReferences", "bor")
