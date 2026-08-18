@@ -21,6 +21,8 @@ public class OpenmrsAppContext implements AppContext {
 	
 	public static final String PROP_ORDER_TYPE_TO_LOCATION_ATTR_NAME_MAP = "fhir2Extension.orderTypeToReferralLocationAttributeMap";
 	
+	public static final String PROP_ORDER_TYPE_TO_CATEGORY_MAP = "fhir2Extension.orderTypeToCategoryMap";
+	
 	@Autowired
 	public OpenmrsAppContext(@Qualifier("adminService") AdministrationService administrationService) {
 		this.administrationService = administrationService;
@@ -35,6 +37,13 @@ public class OpenmrsAppContext implements AppContext {
 	@Cacheable(value = "fhir2extensionOrderTypeToLocationAttributeMap")
 	public Map<String, String> getOrderTypeToLocationAttributeNameMap() {
 		String propertyValue = administrationService.getGlobalProperty(PROP_ORDER_TYPE_TO_LOCATION_ATTR_NAME_MAP, "");
+		return parseStringToMap(propertyValue);
+	}
+	
+	@Override
+	@Cacheable(value = "fhir2extensionOrderTypeToCategoryMap")
+	public Map<String, String> getOrderTypeToCategoryMap() {
+		String propertyValue = administrationService.getGlobalProperty(PROP_ORDER_TYPE_TO_CATEGORY_MAP, "");
 		return parseStringToMap(propertyValue);
 	}
 	

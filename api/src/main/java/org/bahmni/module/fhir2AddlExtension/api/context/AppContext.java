@@ -9,4 +9,6 @@ public interface AppContext {
 	User getCurrentUser();
 	
 	Map<String, String> getOrderTypeToLocationAttributeNameMap();
+	
+	Map<String, String> getOrderTypeToCategoryMap();
 }
