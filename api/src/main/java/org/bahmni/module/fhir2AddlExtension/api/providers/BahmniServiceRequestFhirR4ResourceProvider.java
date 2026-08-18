@@ -17,6 +17,7 @@ import org.bahmni.module.fhir2AddlExtension.api.BahmniFhirConstants;
 import org.bahmni.module.fhir2AddlExtension.api.service.BahmniFhirServiceRequestService;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.ImagingStudy;
+import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -53,6 +54,8 @@ public class BahmniServiceRequestFhirR4ResourceProvider extends ServiceRequestFh
 	        @OptionalParam(name = ServiceRequest.SP_OCCURRENCE) DateRangeParam occurrence,
 	        @OptionalParam(name = ServiceRequest.SP_RES_ID) TokenAndListParam uuid,
 	        @OptionalParam(name = ServiceRequest.SP_CATEGORY) ReferenceAndListParam categoryReference,
+	        @OptionalParam(name = BahmniFhirConstants.SP_ORDER_LOCATION, chainWhitelist = { "" }, targetTypes = Location.class) ReferenceAndListParam locationReference,
+	        @OptionalParam(name = ServiceRequest.SP_STATUS) TokenAndListParam status,
 	        @OptionalParam(name = "_lastUpdated") DateRangeParam lastUpdated, @IncludeParam(allow = {
 	                "ServiceRequest:" + ServiceRequest.SP_PATIENT, "ServiceRequest:" + ServiceRequest.SP_REQUESTER,
 	                "ServiceRequest:" + ServiceRequest.SP_ENCOUNTER }) HashSet<Include> includes,
@@ -65,8 +68,9 @@ public class BahmniServiceRequestFhirR4ResourceProvider extends ServiceRequestFh
 			includes = null;
 		}
 		
-		return serviceRequestService.searchForServiceRequestsWithCategory(patientReference, code, encounterReference,
-		    participantReference, categoryReference, occurrence, uuid, lastUpdated, includes, revIncludes);
+		return serviceRequestService
+		        .searchForServiceRequestsWithCategory(patientReference, code, encounterReference, participantReference,
+		            categoryReference, locationReference, occurrence, uuid, lastUpdated, includes, revIncludes);
 	}
 	
 	@Search
