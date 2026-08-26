@@ -56,10 +56,11 @@ public class BahmniServiceRequestFhirR4ResourceProvider extends ServiceRequestFh
 	        @OptionalParam(name = ServiceRequest.SP_CATEGORY) ReferenceAndListParam categoryReference,
 	        @OptionalParam(name = BahmniFhirConstants.SP_ORDER_LOCATION, chainWhitelist = { "" }, targetTypes = Location.class) ReferenceAndListParam locationReference,
 	        @OptionalParam(name = ServiceRequest.SP_STATUS) TokenAndListParam status,
-	        @OptionalParam(name = "_lastUpdated") DateRangeParam lastUpdated, @IncludeParam(allow = {
-	                "ServiceRequest:" + ServiceRequest.SP_PATIENT, "ServiceRequest:" + ServiceRequest.SP_REQUESTER,
-	                "ServiceRequest:" + ServiceRequest.SP_ENCOUNTER }) HashSet<Include> includes,
-	        @IncludeParam(reverse = true, allow = { "ImagingStudy:" + ImagingStudy.SP_BASEDON }) HashSet<Include> revIncludes) {
+	        @OptionalParam(name = "_lastUpdated") DateRangeParam lastUpdated,
+	        @IncludeParam(allow = { "ServiceRequest:" + ServiceRequest.SP_PATIENT,
+	                "ServiceRequest:" + ServiceRequest.SP_REQUESTER, "ServiceRequest:" + ServiceRequest.SP_ENCOUNTER }) HashSet<Include> includes,
+	        @IncludeParam(reverse = true, allow = { "ImagingStudy:" + ImagingStudy.SP_BASEDON }) HashSet<Include> revIncludes,
+	        @Sort SortSpec sort) {
 		if (patientReference == null) {
 			patientReference = subjectReference;
 		}
@@ -68,9 +69,9 @@ public class BahmniServiceRequestFhirR4ResourceProvider extends ServiceRequestFh
 			includes = null;
 		}
 		
-		return serviceRequestService
-		        .searchForServiceRequestsWithCategory(patientReference, code, encounterReference, participantReference,
-		            categoryReference, locationReference, occurrence, uuid, lastUpdated, includes, revIncludes);
+		return serviceRequestService.searchForServiceRequestsWithCategory(patientReference, code, encounterReference,
+		    participantReference, categoryReference, locationReference, occurrence, uuid, lastUpdated, includes,
+		    revIncludes, sort);
 	}
 	
 	@Search

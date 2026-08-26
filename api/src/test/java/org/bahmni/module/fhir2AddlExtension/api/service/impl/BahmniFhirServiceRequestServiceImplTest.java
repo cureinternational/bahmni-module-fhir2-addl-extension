@@ -501,7 +501,7 @@ public class BahmniFhirServiceRequestServiceImplTest {
         // Call the service method with all parameters including category
         IBundleProvider results = serviceRequestService.searchForServiceRequestsWithCategory(
                 patientReference, code, encounterReference, participantReference,
-                category, null, occurrence, uuid, lastUpdated, includes, null);
+                category, null, occurrence, uuid, lastUpdated, includes, null, null);
 
         // Capture the actual SearchParameterMap passed to searchQuery.getQueryResults
         ArgumentCaptor<SearchParameterMap> mapCaptor = ArgumentCaptor.forClass(SearchParameterMap.class);
@@ -810,7 +810,7 @@ public class BahmniFhirServiceRequestServiceImplTest {
 		                searchQueryInclude));
 
 		IBundleProvider results = serviceRequestService.searchForServiceRequestsWithCategory(patientReference, null, null,
-		    null, category, null, null, null, null, null, revIncludes);
+		    null, category, null, null, null, null, null, revIncludes, null);
 
 		assertThat(results, notNullValue());
 
@@ -833,7 +833,7 @@ public class BahmniFhirServiceRequestServiceImplTest {
 		                searchQueryInclude));
 
 		IBundleProvider results = serviceRequestService.searchForServiceRequestsWithCategory(patientReference, null, null,
-		    null, category, null, null, null, null, null, null);
+		    null, category, null, null, null, null, null, null, null);
 
 		assertThat(results, notNullValue());
 

@@ -68,11 +68,15 @@ public class BahmniFhirServiceRequestServiceImpl extends BaseFhirService<Service
 	public IBundleProvider searchForServiceRequestsWithCategory(ReferenceAndListParam patientReference,
 	        TokenAndListParam code, ReferenceAndListParam encounterReference, ReferenceAndListParam participantReference,
 	        ReferenceAndListParam category, ReferenceAndListParam location, DateRangeParam occurrence,
-	        TokenAndListParam uuid, DateRangeParam lastUpdated, HashSet<Include> includes, HashSet<Include> revIncludes) {
+	        TokenAndListParam uuid, DateRangeParam lastUpdated, HashSet<Include> includes, HashSet<Include> revIncludes,
+	        SortSpec sort) {
 		SearchParameterMap theParams = getSearchParameterMap(patientReference, code, encounterReference,
 		    participantReference, occurrence, uuid, lastUpdated, includes, revIncludes);
 		theParams.addParameter(FhirConstants.CATEGORY_SEARCH_HANDLER, category);
 		theParams.addParameter(BahmniFhirConstants.ORDER_LOCATION_SEARCH_HANDLER, location);
+		if (sort != null) {
+			theParams.setSortSpec(sort);
+		}
 		return searchQuery.getQueryResults(theParams, dao, translator, searchQueryInclude);
 	}
 	
