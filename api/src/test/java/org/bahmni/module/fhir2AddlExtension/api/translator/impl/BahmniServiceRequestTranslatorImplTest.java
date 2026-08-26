@@ -3,7 +3,6 @@ package org.bahmni.module.fhir2AddlExtension.api.translator.impl;
 import ca.uhn.fhir.rest.server.exceptions.InvalidRequestException;
 import org.bahmni.module.fhir2AddlExtension.api.BahmniFhirConstants;
 import org.bahmni.module.fhir2AddlExtension.api.context.AppContext;
-import org.bahmni.module.fhir2AddlExtension.api.dao.BahmniFhirTaskDao;
 import org.bahmni.module.fhir2AddlExtension.api.dao.OrderAttributeTypeDao;
 import org.bahmni.module.fhir2AddlExtension.api.service.impl.ServiceRequestLocationReferenceResolverImpl;
 import org.bahmni.module.fhir2AddlExtension.api.translator.OrderTypeTranslator;
@@ -26,8 +25,6 @@ import org.openmrs.module.fhir2.api.translators.LocationReferenceTranslator;
 import org.openmrs.module.fhir2.api.translators.PatientReferenceTranslator;
 import org.openmrs.module.fhir2.api.translators.PractitionerReferenceTranslator;
 import org.openmrs.module.fhir2.api.translators.impl.OrderIdentifierTranslatorImpl;
-import org.openmrs.module.fhir2.model.FhirReference;
-import org.openmrs.module.fhir2.model.FhirTask;
 import org.openmrs.order.OrderUtilTest;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -108,9 +105,6 @@ public class BahmniServiceRequestTranslatorImplTest {
 	AppContext appContext;
 	
 	@Mock
-	private BahmniFhirTaskDao taskDao;
-	
-	@Mock
 	private PractitionerReferenceTranslator<User> userPractitionerReferenceTranslator;
 	
 	private Order discontinuedOrder;
@@ -150,7 +144,6 @@ public class BahmniServiceRequestTranslatorImplTest {
 		        locationReferenceTranslator, orderAttributeTypeDao, appContext);
 		
 		translator.setLocationReferenceResolver(orderLocationReferenceResolver);
-		translator.setTaskDao(taskDao);
 		translator.setUserPractitionerReferenceTranslator(userPractitionerReferenceTranslator);
 		
 		orderConcept = new Concept();
@@ -1241,134 +1234,6 @@ public class BahmniServiceRequestTranslatorImplTest {
 		assertThat(result, notNullValue());
 		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_UPDATED_BY), nullValue());
 		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_UPDATED_ON), nullValue());
-	}
-	
-	@Test
-	public void toFhirResource_shouldMapTaskOwnerToExtension() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
-		FhirReference ownerRef = new FhirReference();
-		ownerRef.setReference("Practitioner/owner-uuid");
-		ownerRef.setType("Practitioner");
-		task.setOwnerReference(ownerRef);
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER);
-		assertThat(ext, notNullValue());
-		assertThat(((Reference) ext.getValue()).getReference(), equalTo("Practitioner/owner-uuid"));
-		assertThat(((Reference) ext.getValue()).getType(), equalTo("Practitioner"));
-	}
-	
-	@Test
-	public void toFhirResource_shouldMapTaskCommentAsNote() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
-		task.setComment("Task comment");
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_NOTE);
-		assertThat(ext, notNullValue());
-		assertThat(((Annotation) ext.getValue()).getText(), equalTo("Task comment"));
-	}
-	
-	@Test
-	public void toFhirResource_shouldMapTaskCreatedOnToExtension() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
-		Date taskCreatedDate = new Date();
-		task.setDateCreated(taskCreatedDate);
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_CREATED_ON);
-		assertThat(ext, notNullValue());
-		assertThat(((DateTimeType) ext.getValue()).getValue(), equalTo(taskCreatedDate));
-	}
-	
-	@Test
-	public void toFhirResource_shouldMapTaskStatusToExtension() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS);
-		assertThat(ext, notNullValue());
-		assertThat(((StringType) ext.getValue()).getValue(), equalTo(task.getStatus().name()));
-	}
-	
-	@Test
-	public void toFhirResource_shouldMapReadyTaskStatusToOrderStatusExtension() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.READY);
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		Extension ext = result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS);
-		assertThat(ext, notNullValue());
-		assertThat(((StringType) ext.getValue()).getValue(), equalTo("READY"));
-	}
-	
-	@Test
-	public void toFhirResource_shouldNotAddOrderStatusExtensionWhenTaskStatusIsNull() {
-		FhirTask task = new FhirTask();
-		task.setStatus(null);
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS), nullValue());
-	}
-	
-	@Test
-	public void toFhirResource_shouldNotAddTaskExtensionsWhenNoTaskExists() {
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(null);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER), nullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_CREATED_ON), nullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_ORDER_STATUS), nullValue());
-	}
-	
-	@Test
-	public void toFhirResource_shouldNotAddTaskOwnerExtensionWhenOwnerReferenceIsNull() {
-		FhirTask task = new FhirTask();
-		task.setStatus(FhirTask.TaskStatus.ACCEPTED);
-		task.setOwnerReference(null);
-		task.setDateCreated(new Date());
-		
-		when(taskDao.getTaskByOrderUuid(SERVICE_REQUEST_UUID)).thenReturn(task);
-		
-		ServiceRequest result = translator.toFhirResource(order);
-		
-		assertThat(result, notNullValue());
-		assertThat(result.getExtensionByUrl(BahmniFhirConstants.FHIR_EXT_SERVICE_REQUEST_TASK_OWNER), nullValue());
 	}
 	
 	@Test
